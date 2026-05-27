@@ -2,14 +2,11 @@ package com.ead.course.models;
 
 import com.ead.course.enums.CourseLevel;
 import com.ead.course.enums.CourseStatus;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -61,12 +58,11 @@ public class CourseModel implements Serializable {
     private Set<ModuleModel> modules;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
-    private Set<CourseUserModel> coursesUsers;
-
-    public CourseUserModel convertToCourseUserModel(UUID userId){
-        return new CourseUserModel(null, userId,this);
-    }
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "TB_COURSES_USERS",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserModel> users;
 
     public UUID getCourseId() {
         return courseId;
@@ -148,11 +144,11 @@ public class CourseModel implements Serializable {
         this.modules = modules;
     }
 
-    public Set<CourseUserModel> getCoursesUsers() {
-        return coursesUsers;
+    public Set<UserModel> getUsers() {
+        return users;
     }
 
-    public void setCoursesUsers(Set<CourseUserModel> coursesUsers) {
-        this.coursesUsers = coursesUsers;
+    public void setUsers(Set<UserModel> users) {
+        this.users = users;
     }
 }

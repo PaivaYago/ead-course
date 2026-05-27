@@ -2,9 +2,11 @@ package com.ead.course.services;
 
 import com.ead.course.dtos.CourseRecordDto;
 import com.ead.course.models.CourseModel;
+import com.ead.course.models.UserModel;
 import com.ead.course.specifications.SpecificationTemplate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,5 +29,7 @@ public interface CourseService {
 
     CourseModel update(@Valid CourseRecordDto courseRecordDto, CourseModel courseModel);
 
-    boolean existsByUserId(UUID userId);
+    boolean existsByCourseAndUser(UUID courseId, UUID userId);
+
+    void saveSubscriptionUserInCourse(CourseModel courseModel, UserModel userModel);
 }
