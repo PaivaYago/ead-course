@@ -1,18 +1,18 @@
 package com.ead.course.validations;
 
-import com.ead.course.clients.AuthUserClient;
 import com.ead.course.dtos.CourseRecordDto;
-import com.ead.course.dtos.UserRecordDto;
 import com.ead.course.enums.UserType;
+import com.ead.course.models.UserModel;
 import com.ead.course.services.CourseService;
+import com.ead.course.services.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -23,12 +23,12 @@ public class CourseValidator implements Validator {
 
     private final Validator validator;
     final CourseService courseService;
-    final AuthUserClient authUserClient;
+    final UserService userService;
 
-    public CourseValidator(@Qualifier("defaultValidator") Validator validator, CourseService courseService, AuthUserClient authUserClient) {
+    public CourseValidator(@Qualifier("defaultValidator") Validator validator, CourseService courseService, UserService userService) {
         this.validator = validator;
         this.courseService = courseService;
-        this.authUserClient = authUserClient;
+        this.userService = userService;
     }
 
     @Override
@@ -54,10 +54,10 @@ public class CourseValidator implements Validator {
     }
 
     private void validateUserInstructor(UUID userInstructor, Errors errors){
-        ResponseEntity<UserRecordDto> responseUserInstructor = authUserClient.getOneUserById(userInstructor);
-        if(responseUserInstructor.getBody().userType().equals(UserType.STUDENT) ||
-                responseUserInstructor.getBody().userType().equals(UserType.USER)){
-            errors.rejectValue("userInstructor", "userInstructorError", "User must be INSTRUCTOR or ADMIN.");
+        Optional<UserModel> userModelOptional = userService.findById(userInstructor);
+        if(userModelOptional.get().getUserType().equals(UserType.STUDENT.toString()) ||
+                userModelOptional.get().getUserType().equals(UserType.USER.toString())){
+            errors.rejectValue("userInstructor", "UserInstructorError", "User must be INSTRUCTOR or ADMIN.");
             logger.error("Error validation userInstructor: {} ", userInstructor);
         }
     }
